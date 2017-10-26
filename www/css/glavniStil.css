@@ -1,0 +1,41 @@
+#btnManja{
+    width: 45%;
+    float: left;
+    margin: 3px;
+    color: red;
+}
+
+#btnVeca{
+    width: 45%;
+    float: right;
+    margin: 3px;
+    color: green;
+}
+
+#karta img{
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+}
+
+h1{
+    background-color: skyblue;
+    border-radius: 14px;
+    text-align: center;
+    margin: 15px;
+}
+
+body {
+    margin: 0 0 30px; /* bottom = footer height */
+    padding: 2px;
+}
+
+footer{
+    position: absolute;
+    border: 1px solid green;
+    left: 0;
+    bottom: 0;
+    height: 30px;
+    width: 100%;
+    overflow:hidden;
+}
