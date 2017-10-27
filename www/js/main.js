@@ -5,13 +5,15 @@ var spilID = "fbr7mnf2482p";
 var prvaKarta = null;
 var drugaKarta = null;
 var preostaloKarata;
+var potez;
+var rezultatIgre;
 
 window.onload = function () {
   document.getElementById("btnKarta").addEventListener("click",uzmiKartu);
   document.getElementById("btnNoviSpil").addEventListener("click",noviSpil);
   document.getElementById("btnManja").addEventListener("click",uzmiKartu);
   document.getElementById("btnVeca").addEventListener("click",uzmiKartu);
-  console.log(prvaKarta);
+  
 }
 
 function potez(){
@@ -23,7 +25,19 @@ function potez(){
 
 function usporedi(prva, druga){
   prva = provjeriVrijednost(prva);
-  druga = provjeriVrijednost(druga); 
+  druga = provjeriVrijednost(druga);
+  if (druga < prva){
+    console.log("manja");
+    return 0;
+  }
+  else if (druga > prva){
+    console.log("veca");
+    return 1;
+  }
+  else{
+    console.log("iste");
+    return 2;
+  }
 }
 
 function provjeriVrijednost(broj){
@@ -75,7 +89,13 @@ function uzmiKartu() {
   if (prvaKarta != null && this.id == "btnKarta"){
     document.getElementById("poruke").innerHTML = "Morate odigrati potez!";
     return;
-  } 
+  }
+  else if (this.id == "btnKarta"){
+    rezultatIgre = 0;
+    promjesajSpil();
+  }
+  //spremamo ID botuna koji je pozvao uzimanje karte
+  potez = this.id;
   // zahtjev od API-ja
   reqKarta = new XMLHttpRequest();
   var url ="https://deckofcardsapi.com/api/deck/"+spilID+"/draw/?count=1";
@@ -90,17 +110,41 @@ function primiKartu() {
     var podaci = jQuery.parseJSON(reqKarta.responseText);
     provjeriSpil(podaci.remaining);  
     (prvaKarta === null) ? (prvaKarta = podaci.cards[0].value) : (drugaKarta = podaci.cards[0].value);
-    if (drugaKarta != null){
-      var rezUsporedba = usporedi(prvaKarta, drugaKarta);
-      prvaKarta = drugaKarta;
-      drugaKarta = null;
-    }   
     console.log("Prva: " + prvaKarta);
     console.log("Druga: " + drugaKarta);
     var slika = podaci.cards[0].image;
     document.getElementById('karta').innerHTML = "<img src="+slika+" />"
-    document.getElementById("poruke").innerHTML = "Dohvatio si novu kartu, ostalo ih je još " + podaci.remaining+"."
+    if (drugaKarta != null){
+      // 0 - manja, 1 - veća, 2 - jednaka
+      var rezUsporedba = usporedi(prvaKarta, drugaKarta);
+      prvaKarta = drugaKarta;
+      drugaKarta = null;
+      rezultatPoteza(rezUsporedba, potez);
+      document.getElementById('rezultat').innerHTML = "Rezultat: " + rezultatIgre;      
+    }   
   }
+}
+//Funkcija koja određuje rezultat poteza
+function rezultatPoteza(usporedba, potez){
+  var rezultat = false;
+  if (potez == "btnManja" && usporedba === 0){
+    rezultat = true;
+  }
+  else if (potez == "btnVeca" && usporedba === 1){
+    rezultat = true; 
+  }
+  var por = document.getElementById("poruke");
+  if ( rezultat === true){
+    por.innerHTML = "Bravo, pogodio si";
+    rezultatIgre ++;
+  }
+  else
+  {
+    por.innerHTML = "Krivo!!!"
+    rezultatIgre = 0;
+    promjesajSpil();
+  } 
+
 }
 
 // Funkcija za provjeru preostalih karata u špilu
@@ -108,15 +152,19 @@ function primiKartu() {
 function provjeriSpil(broj){
   console.log(broj);
   if (broj <= 0){
-    var zah = new XMLHttpRequest();
-    var url ="https://deckofcardsapi.com/api/deck/"+spilID+"/shuffle/";
-    zah.onreadystatechange = function(){
-      if (zah.readyState == 4 && zah.status == 200){
-        console.log("Karte su promiješane");
-      }
-    }
-    zah.open('GET',url,true);
-    zah.send();
+    promjesajSpil();
   }
   
+}
+// Slanje zahtjeva za mjesanje spila
+function promjesajSpil(){
+  var zah = new XMLHttpRequest();
+  var url ="https://deckofcardsapi.com/api/deck/"+spilID+"/shuffle/";
+  zah.onreadystatechange = function(){
+    if (zah.readyState == 4 && zah.status == 200){
+      console.log("Karte su promiješane");
+    }
+  }
+  zah.open('GET',url,true);
+  zah.send();
 }
