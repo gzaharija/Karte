@@ -32,6 +32,9 @@ body {
 
 footer{
     position: absolute;
+    text-align: center;
+    font-weight: bold;
+    font-size: 125%;
     border: 1px solid green;
     left: 0;
     bottom: 0;
